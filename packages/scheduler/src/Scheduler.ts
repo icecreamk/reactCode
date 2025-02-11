@@ -133,9 +133,11 @@ function scheduleCallback(
     // 任务在timerQueue到达开始时间之后，就会被推入 taskQueue
     push(timerQueue, newTask);
     // 每次只倒计时一个任务
+    // taskQueue优先级高，处理完再轮到延迟任务
     if (peek(taskQueue) === null && newTask === peek(timerQueue)) {
       if (isHostTimeoutScheduled) {
-        // newTask 才是堆顶任务，才应该最先到达执行时间，newTask应该被倒计时，但是其他任务也被倒计时了，说明有问题
+        // newTask 才是堆顶任务，才应该最先到达执行时间，
+        // newTask应该被倒计时，但是其他任务也被倒计时了，说明有问题，应该将它取消
         cancelHostTimeout();
       } else {
         isHostTimeoutScheduled = true;
@@ -157,6 +159,7 @@ function scheduleCallback(
 
 function requestHostCallback() {
   if (!isMessageLoopRunning) {
+    // 加锁
     isMessageLoopRunning = true;
     schedulePerformWorkUntilDeadline();
   }
@@ -180,6 +183,10 @@ function performWorkUntilDeadline() {
   }
 }
 
+// 通过 MessageChannel 模拟宏任务
+// port2发消息，port1接受
+
+// 为什么不用setTimeout，因为有一个最小4毫秒的延迟，性能没有MessageChannel好
 const channel = new MessageChannel();
 const port = channel.port2;
 channel.port1.onmessage = performWorkUntilDeadline;
