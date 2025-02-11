@@ -51,7 +51,14 @@ importers:
 
   packages/react: {}
 
-  packages/react-dom: {}
+  packages/react-dom:
+    dependencies:
+      react-reconciler:
+        specifier: workspace:^
+        version: link:../react-reconciler
+      shared:
+        specifier: workspace:^
+        version: link:../shared
 
   packages/react-reconciler: {}
 
