@@ -92,11 +92,10 @@ function scheduleCallback(
   }
 
   // expirationTime 是过期时间，理论上的任务执行时间
-
   let timeout: number;
   switch (priorityLevel) {
     case ImmediatePriority:
-      // 立即超时，SVVVVIP
+      // 立即超时，SVVVVIP 比如：客户是马云
       timeout = -1;
       break;
     case UserBlockingPriority:
@@ -104,6 +103,7 @@ function scheduleCallback(
       timeout = userBlockingPriorityTimeout;
       break;
     case IdlePriority:
+      // 优先级最低的，可能是闲置的时候再去执行它
       // 永不超时
       timeout = maxSigned31BitInt;
       break;
@@ -147,6 +147,7 @@ function scheduleCallback(
     newTask.sortIndex = expirationTime;
     push(taskQueue, newTask);
 
+    // 当没有 调度，且 没有 时间切片在执行时，开始执行任务
     if (!isHostCallbackScheduled && !isPerformingWork) {
       isHostCallbackScheduled = true;
       requestHostCallback();
